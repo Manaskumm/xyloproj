@@ -1,13 +1,13 @@
-import { openai } from "@ai-sdk/openai";
+import { groq } from "@ai-sdk/groq";
 import { generateObject } from "ai";
 import { LeaseAnalysisSchema } from "@/features/lease-review/types";
 import { LEASE_ANALYSIS_PROMPT } from "@/server/prompts/lease-analysis";
 
 export async function analyzeLeaseText(input: { text: string; fileName: string }) {
-  const modelName = process.env.OPENAI_MODEL || "gpt-4o-mini";
+  const modelName = process.env.GROQ_MODEL || "llama-3.1-70b-versatile";
 
   const { object, usage } = await generateObject({
-    model: openai(modelName),
+    model: groq(modelName),
     schema: LeaseAnalysisSchema,
     system: LEASE_ANALYSIS_PROMPT.system,
     prompt: [

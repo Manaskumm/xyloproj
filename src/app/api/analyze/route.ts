@@ -8,9 +8,9 @@ export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
-    if (!process.env.OPENAI_API_KEY) {
+    if (!process.env.GROQ_API_KEY) {
       return NextResponse.json(
-        { error: "OPENAI_API_KEY is not configured on the server." },
+        { error: "GROQ_API_KEY is not configured on the server." },
         { status: 500 }
       );
     }
