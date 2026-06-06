@@ -814,6 +814,8 @@ h3 {
   padding: 10px 16px;
   gap: 12px;
   transition: border-color 0.2s ease;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .queue-item:hover {
@@ -829,11 +831,13 @@ h3 {
 }
 
 .queue-item-name {
+  display: block;
   font-size: 13px;
   color: var(--color-paper-white);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 100%;
 }
 
 .queue-item-meta {
