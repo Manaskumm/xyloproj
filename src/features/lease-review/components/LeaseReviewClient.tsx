@@ -176,13 +176,6 @@ export function LeaseReviewClient() {
               <p className="eyebrow">Review Desk</p>
               <h2>{result ? result.analysis.documentType : "No document loaded"}</h2>
             </div>
-            {result ? (
-              <span className="pill" translate="no">
-                {result.model}
-              </span>
-            ) : (
-              <span className="pill">Draft</span>
-            )}
           </div>
 
           {!result ? (
@@ -352,9 +345,6 @@ function AnalysisView({ result }: { result: AnalyzeResponse }) {
       </div>
 
       <div className="notice">{analysis.disclaimer}</div>
-      <p className="label">
-        Prompt {result.promptVersion}; {result.usage.totalTokens.toLocaleString()} total tokens.
-      </p>
     </div>
   );
 }
