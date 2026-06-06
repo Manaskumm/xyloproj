@@ -1,23 +1,23 @@
 import { z } from "zod";
 
-export const LeaseRiskSchema = z.object({
+export const ContractRiskSchema = z.object({
   level: z.enum(["low", "medium", "high"]),
   issue: z.string().min(1),
   whyItMatters: z.string().min(1),
   recommendedAction: z.string().min(1)
 });
 
-export const LeaseAnalysisSchema = z.object({
+export const ContractAnalysisSchema = z.object({
   documentType: z.string().min(1),
-  tenant: z.string().min(1),
-  property: z.string().min(1),
-  leaseStatus: z.string().min(1),
+  generalContractor: z.string().min(1),
+  projectName: z.string().min(1),
+  tradeCategory: z.string().min(1),
   executiveSummary: z.string().min(1),
-  criticalDates: z.array(
+  milestones: z.array(
     z.object({
       label: z.string().min(1),
       date: z.string().min(1),
-      action: z.string().min(1)
+      actionRequired: z.string().min(1)
     })
   ),
   financialTerms: z.array(
@@ -34,10 +34,10 @@ export const LeaseAnalysisSchema = z.object({
       timing: z.string().min(1)
     })
   ),
-  risks: z.array(LeaseRiskSchema),
-  renewalPlan: z.array(z.string().min(1)),
-  missingInformation: z.array(z.string().min(1)),
+  risks: z.array(ContractRiskSchema),
+  negotiationPlan: z.array(z.string().min(1)),
+  missingSpecs: z.array(z.string().min(1)),
   disclaimer: z.string().min(1)
 });
 
-export type LeaseAnalysis = z.infer<typeof LeaseAnalysisSchema>;
+export type ContractAnalysis = z.infer<typeof ContractAnalysisSchema>;

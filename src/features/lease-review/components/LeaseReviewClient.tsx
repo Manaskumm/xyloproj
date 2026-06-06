@@ -11,10 +11,10 @@ import {
   UploadCloud
 } from "lucide-react";
 import { FormEvent, useMemo, useState } from "react";
-import type { LeaseAnalysis } from "@/features/lease-review/types";
+import type { ContractAnalysis } from "@/features/lease-review/types";
 
 type AnalyzeResponse = {
-  analysis: LeaseAnalysis;
+  analysis: ContractAnalysis;
   usage: {
     inputTokens: number;
     outputTokens: number;
@@ -66,7 +66,7 @@ export function LeaseReviewClient() {
     event.preventDefault();
 
     if (!file) {
-      setError("Choose a lease document first.");
+      setError("Choose a contract or specification document first.");
       return;
     }
 
@@ -110,10 +110,10 @@ export function LeaseReviewClient() {
               Cairn
             </p>
           </div>
-          <h1>Lease Review Desk</h1>
+          <h1>Subcontract Review Desk</h1>
           <p className="lead">
-            Turn a lease or renewal packet into the dates, money terms, obligations, risk flags,
-            and renewal actions your team needs to act on.
+            Turn a subcontract agreement, bid package, or supplier proposal into the scopes,
+            payment schedules, milestones, and risk flags your team needs to review before bidding or signing.
           </p>
 
           <form onSubmit={handleSubmit}>
@@ -128,12 +128,12 @@ export function LeaseReviewClient() {
               <span className="upload-icon" aria-hidden="true">
                 <UploadCloud size={28} />
               </span>
-              <strong>{file ? "Ready to Analyze" : "Choose Lease Document"}</strong>
+              <strong>{file ? "Ready to Analyze" : "Choose Contract Document"}</strong>
               <span>{fileMeta}</span>
               <span className="file-trigger">Browse Files</span>
               <input
                 className="file-input"
-                name="lease-document"
+                name="contract-document"
                 type="file"
                 accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
                 onChange={(event) => {
@@ -147,7 +147,7 @@ export function LeaseReviewClient() {
             <div className="button-row">
               <button className="primary-button" type="submit" disabled={isLoading}>
                 <FileCheck2 size={18} aria-hidden="true" />
-                {isLoading ? "Analyzing…" : "Analyze Lease"}
+                {isLoading ? "Analyzing…" : "Analyze Contract"}
               </button>
             </div>
           </form>
@@ -185,8 +185,7 @@ export function LeaseReviewClient() {
               </div>
               <h2>Your review packet will land here.</h2>
               <p>
-                Cairn organizes the lease into dated actions, financial terms, obligations, risk
-                flags, and missing information.
+                Cairn organizes the contract into milestones, payment terms, subcontractor/GC obligations, and operational risks.
               </p>
             </div>
           ) : (
@@ -211,16 +210,16 @@ function AnalysisView({ result }: { result: AnalyzeResponse }) {
         <p className="value">{analysis.executiveSummary}</p>
         <ul className="kv-list">
           <li>
-            <span className="label">Tenant</span>
-            <span className="value">{analysis.tenant}</span>
+            <span className="label">General Contractor / Client</span>
+            <span className="value">{analysis.generalContractor}</span>
           </li>
           <li>
-            <span className="label">Property</span>
-            <span className="value">{analysis.property}</span>
+            <span className="label">Project Name</span>
+            <span className="value">{analysis.projectName}</span>
           </li>
           <li>
-            <span className="label">Lease Status</span>
-            <span className="value">{analysis.leaseStatus}</span>
+            <span className="label">Trade Category</span>
+            <span className="value">{analysis.tradeCategory}</span>
           </li>
         </ul>
       </div>
@@ -229,15 +228,15 @@ function AnalysisView({ result }: { result: AnalyzeResponse }) {
         <div className="section">
           <h2>
             <CalendarClock size={18} aria-hidden="true" />
-            Critical Dates
+            Milestones & Deadlines
           </h2>
-          {analysis.criticalDates.length ? (
+          {analysis.milestones.length ? (
             <ul className="kv-list">
-              {analysis.criticalDates.map((item, index) => (
+              {analysis.milestones.map((item, index) => (
               <li key={`${item.label}-${index}`}>
                 <span className="label">{item.label}</span>
                 <span className="value">{item.date}</span>
-                <span className="value">{item.action}</span>
+                <span className="value">{item.actionRequired}</span>
               </li>
               ))}
             </ul>
@@ -249,7 +248,7 @@ function AnalysisView({ result }: { result: AnalyzeResponse }) {
         <div className="section">
           <h2>
             <DollarSign size={18} aria-hidden="true" />
-            Financial Terms
+            Payment & Financial Terms
           </h2>
           {analysis.financialTerms.length ? (
             <ul className="kv-list">
@@ -269,7 +268,7 @@ function AnalysisView({ result }: { result: AnalyzeResponse }) {
         <div className="section full">
           <h2>
             <AlertTriangle size={18} aria-hidden="true" />
-            Risk Flags
+            Contractual & Scope Risks
           </h2>
           {analysis.risks.length ? (
             <div className="kv-list">
@@ -294,7 +293,7 @@ function AnalysisView({ result }: { result: AnalyzeResponse }) {
         <div className="section">
           <h2>
             <ClipboardList size={18} aria-hidden="true" />
-            Obligations
+            Project Obligations
           </h2>
           {analysis.obligations.length ? (
             <ul className="kv-list">
@@ -314,11 +313,11 @@ function AnalysisView({ result }: { result: AnalyzeResponse }) {
         <div className="section">
           <h2>
             <ShieldCheck size={18} aria-hidden="true" />
-            Renewal Plan
+            Negotiation Plan
           </h2>
-          {analysis.renewalPlan.length ? (
+          {analysis.negotiationPlan.length ? (
             <ol className="clean-list">
-              {analysis.renewalPlan.map((item, index) => (
+              {analysis.negotiationPlan.map((item, index) => (
               <li key={`${item}-${index}`}>{item}</li>
               ))}
             </ol>
@@ -330,11 +329,11 @@ function AnalysisView({ result }: { result: AnalyzeResponse }) {
         <div className="section full">
           <h2>
             <FileText size={18} aria-hidden="true" />
-            Missing Information
+            Missing Drawings & Specs
           </h2>
-          {analysis.missingInformation.length ? (
+          {analysis.missingSpecs.length ? (
             <ul className="clean-list">
-              {analysis.missingInformation.map((item, index) => (
+              {analysis.missingSpecs.map((item, index) => (
               <li key={`${item}-${index}`}>{item}</li>
               ))}
             </ul>

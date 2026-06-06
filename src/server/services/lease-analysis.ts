@@ -1,14 +1,14 @@
 import { groq } from "@ai-sdk/groq";
 import { generateObject } from "ai";
-import { LeaseAnalysisSchema } from "@/features/lease-review/types";
+import { ContractAnalysisSchema } from "@/features/lease-review/types";
 import { LEASE_ANALYSIS_PROMPT } from "@/server/prompts/lease-analysis";
 
-export async function analyzeLeaseText(input: { text: string; fileName: string }) {
+export async function analyzeContractText(input: { text: string; fileName: string }) {
   const modelName = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
 
   const { object, usage } = await generateObject({
     model: groq(modelName),
-    schema: LeaseAnalysisSchema,
+    schema: ContractAnalysisSchema,
     system: LEASE_ANALYSIS_PROMPT.system,
     providerOptions: {
       groq: {
@@ -18,7 +18,7 @@ export async function analyzeLeaseText(input: { text: string; fileName: string }
     prompt: [
       `Prompt version: ${LEASE_ANALYSIS_PROMPT.version}`,
       `File name: ${input.fileName}`,
-      "Analyze the following lease document text and return the requested JSON structure.",
+      "Analyze the following subcontract agreement or specification text and return the requested JSON structure.",
       "Document text:",
       input.text
     ].join("\n\n"),

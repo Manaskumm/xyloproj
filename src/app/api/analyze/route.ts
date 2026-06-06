@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { extractTextFromUpload } from "@/server/services/extract";
-import { analyzeLeaseText } from "@/server/services/lease-analysis";
+import { analyzeContractText } from "@/server/services/lease-analysis";
 import { checkRateLimit } from "@/server/services/rate-limit";
 
 export const runtime = "nodejs";
@@ -22,11 +22,11 @@ export async function POST(request: Request) {
     const file = formData.get("file");
 
     if (!(file instanceof File)) {
-      return NextResponse.json({ error: "Attach a lease document before analyzing." }, { status: 400 });
+      return NextResponse.json({ error: "Attach a subcontract or specification document before analyzing." }, { status: 400 });
     }
 
     const text = await extractTextFromUpload(file);
-    const result = await analyzeLeaseText({ text, fileName: file.name });
+    const result = await analyzeContractText({ text, fileName: file.name });
 
     return NextResponse.json(result);
   } catch (error) {
