@@ -741,3 +741,159 @@ h3 {
     align-self: flex-start;
   }
 }
+
+/* Tabs Navigation Bar at top of Results */
+.tabs-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-top: none;
+  padding: 12px 24px;
+}
+
+.tab-button {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 0px; /* Monopo Saigon sharp corners */
+  color: var(--color-smoke);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 6px 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  border-color: var(--color-paper-white);
+  color: var(--color-paper-white);
+}
+
+.tab-button.active {
+  background: var(--color-paper-white);
+  border-color: var(--color-paper-white);
+  color: var(--color-ink-black);
+}
+
+.tab-button.active:hover {
+  background: var(--color-smoke);
+  border-color: var(--color-smoke);
+}
+
+/* Sidebar File Queue styling */
+.file-queue {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+}
+
+.queue-title {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-smoke);
+  margin-bottom: 8px;
+}
+
+.queue-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  padding: 10px 16px;
+  gap: 12px;
+  transition: border-color 0.2s ease;
+}
+
+.queue-item:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.queue-item-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+
+.queue-item-name {
+  font-size: 13px;
+  color: var(--color-paper-white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.queue-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.queue-item-size {
+  font-size: 10px;
+  color: var(--color-ash);
+}
+
+.status-badge {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1px 6px;
+  border-radius: 2px;
+}
+
+.status-badge.ready {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-smoke);
+}
+
+.status-badge.analyzing {
+  background: var(--warn-soft);
+  color: var(--warn);
+  animation: pulse 1.5s infinite alternate;
+}
+
+.status-badge.completed {
+  background: var(--ok-soft);
+  color: var(--ok);
+}
+
+.status-badge.failed {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.remove-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-ash);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.remove-btn:hover {
+  color: var(--danger);
+}
+
