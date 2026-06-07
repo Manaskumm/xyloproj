@@ -21,8 +21,6 @@ import {
 } from "lucide-react";
 import { FormEvent, useMemo, useState } from "react";
 import type { EmailAnalysis } from "@/features/lease-review/types";
-import sampleEmailsData from "../sample-emails.json";
-
 type AnalyzeResponse = {
   analysis: EmailAnalysis;
   usage: {
@@ -42,25 +40,8 @@ interface EmailItem {
 }
 
 export function LeaseReviewClient() {
-  // Inbox state (14 sample emails + custom uploads)
-  const [inbox, setInbox] = useState<EmailItem[]>(() => {
-    return sampleEmailsData.map((email) => {
-      // Extract basic headers for display in list
-      const lines = email.content.split("\n");
-      const fromLine = lines.find(l => l.toLowerCase().startsWith("from:"));
-      const subLine = lines.find(l => l.toLowerCase().startsWith("subject:"));
-      
-      const sender = fromLine ? fromLine.replace(/^from:\s*/i, "").trim() : "Unknown Sender";
-      const subject = subLine ? subLine.replace(/^subject:\s*/i, "").trim() : "(No Subject)";
-      
-      return {
-        fileName: email.fileName,
-        content: email.content,
-        sender,
-        subject: subject || "(No Subject)"
-      };
-    });
-  });
+  // Inbox state (custom uploaded emails)
+  const [inbox, setInbox] = useState<EmailItem[]>([]);
 
   const [results, setResults] = useState<Record<string, AnalyzeResponse>>({});
   const [fileStatuses, setFileStatuses] = useState<Record<string, "ready" | "analyzing" | "completed" | "failed">>({});
