@@ -1,12 +1,12 @@
 import { z } from "zod";
 
 export const EmailAnalysisSchema = z.object({
-  senderName: z.string().min(1),
-  senderEmail: z.string().min(1),
+  senderName: z.string(),
+  senderEmail: z.string(),
   company: z.string(),
   intent: z.enum(["invoice_dispute", "new_lead_referral", "document_request", "project_update", "general_query", "complaint"]),
   priority: z.enum(["low", "medium", "high"]),
-  executiveSummary: z.string().min(1),
+  executiveSummary: z.string(),
   crmMatch: z.object({
     clientId: z.string().nullable(),
     matchedName: z.string().nullable(),
@@ -15,9 +15,9 @@ export const EmailAnalysisSchema = z.object({
     discrepancyFound: z.boolean(),
     discrepancyDetails: z.string().nullable()
   }),
-  actionItems: z.array(z.string().min(1)),
-  draftReply: z.string().min(1),
-  disclaimer: z.string().min(1)
+  actionItems: z.array(z.string()),
+  draftReply: z.string(),
+  disclaimer: z.string()
 });
 
 export type EmailAnalysis = z.infer<typeof EmailAnalysisSchema>;
