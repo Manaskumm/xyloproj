@@ -1,92 +1,76 @@
-# Cairn Project Blueprint
+# LedgerSync Project Blueprint
 
 ## Step 1 - Chosen Vertical
 
-**Vertical:** Specialty trade contractors (flooring, HVAC, roofing, plumbing, electrical).
+**Vertical:** Independent accounting and bookkeeping firms (Vertical A).
 
-Subcontractors and specialty trade firms handle complex, document-heavy contracts and specification packages from General Contractors (GCs) or developers. They often do not have dedicated legal departments to highlight dangerous clauses (like pay-if-paid clauses or short notice windows for change orders/delays) or keep track of key milestones, retainage rules, and referenced spec sections. AI can analyze these documents in minutes, delivering a clear summary of operational terms and risks.
+Accounting firms spend hours triaging emails from clients. These emails range from invoice disputes and complaints to missing document submissions, referral introductions, and rescheduling requests. Manually cross-checking these queries against CRM records to identify client status, monthly fees, or outstanding paperwork is a tedious, error-prone workflow that slows down responses.
 
-**Painful workflow:** Subcontract agreement and bid specification review for uploaded PDF, DOCX, or TXT documents.
+**Painful workflow:** Triaging client requests, reconciling details against CRM records (values, statuses, pending tasks), and drafting professional replies.
 
 ## Step 2 - Problem And Solution
 
 ```text
 PROBLEM:
-Specialty trade contractors manually read subcontracts and bid documents to locate payment terms, retainage requirements, billing deadlines, warranty liabilities, milestone schedules, and high-risk clauses (such as pay-if-paid conditions). Missing these dates or terms can trigger severe financial losses or liquidated damages, while hiring external legal counsel for every bid is cost-prohibitive.
+Bookkeepers receive messy, unstructured client emails requesting actions (e.g. disputing invoices, submitting tax info, rescheduling). To handle them, the bookkeeper must look up the client in the CRM, verify their monthly fee or billing status, check if there's any pending paperwork noted, detect inconsistencies (such as an incorrect dispute value), compile action items, and write a reply. Doing this for dozens of emails daily causes significant delays and administrative overhead.
 
 SOLUTION:
-Cairn allows subcontractors to upload a contract or bid package and returns a structured review board: executive summary, milestones and deadlines, financial/billing conditions, obligations, risk flags, missing specification files, and a negotiation strategy plan. The user gets a zero-database, zero-setup, direct upload-to-review workflow.
+LedgerSync automates this workflow. It displays a triage board mapping: sender information, email intent, priority level, CRM reconciliation details (including client status and values), warning cards for discrepancies (like incorrect billing amounts or missing documents), interactive recommended action checklists, and instant copyable email drafts. It runs completely in-memory with a zero-database structure.
 
 KEY AI CAPABILITY USED:
-Document text extraction and LLM structured extraction with Zod schema validation.
+Email context extraction, CRM data reconciliation, and structured JSON generation via Llama-3.3-70b-versatile with Zod schema verification.
 ```
 
 ## Step 3 - Tech Stack
 
 | Layer | Choice | Reason |
 |---|---|---|
-| Frontend | Next.js App Router with React and TypeScript | Ships a polished upload and results UI in one project with strong type safety. |
-| Backend | Next.js Route Handler | Keeps the AI endpoint and frontend together for fast solo-developer iteration. |
-| AI Layer | Vercel AI SDK with Groq / OpenAI | Provides `generateObject` for schema-constrained JSON output and easy provider configuration. |
-| Storage | None for v1 | Uploaded documents are processed in memory and not persisted, reducing compliance and setup burden. |
-| Auth | None for v1 | The first useful prototype can run locally or behind a private deployment without account flows. |
-| Deployment | Vercel | Natural fit for Next.js, environment variables, and route handlers. |
+| Frontend | Next.js App Router with React and TypeScript | Ships a unified darkroom triage dashboard with responsive layouts and stateful checkbox tracking. |
+| Backend | Next.js Route Handler | Performs in-memory CSV parsing and invokes the Groq API in a single server action. |
+| AI Layer | Vercel AI SDK with Groq | Uses `generateObject` for strict validation matching `EmailAnalysisSchema`. |
+| Storage | None | Reads static `crm_export.csv` and emails in-memory for security and zero database compliance. |
+| Deployment | Vercel | Seamless serverless deploys with environment variable configuration. |
 
 ## Step 4 - File Structure
 
 ```text
-cairn/
-├── .env.example                                      # Required environment variables with placeholder values
-├── .gitignore                                        # Local, build, and secret files excluded from git
-├── PROJECT_BLUEPRINT.md                              # Product and implementation blueprint generated from the mapper prompt
-├── README.md                                         # Setup, usage, and deployment instructions
-├── next-env.d.ts                                     # Next.js TypeScript environment declarations
-├── next.config.ts                                    # Next.js configuration
-├── package.json                                      # Scripts and dependencies
-├── tsconfig.json                                     # TypeScript compiler options and path aliases
+xyloproject/
+├── .env                                              # Local environment settings (GROQ API key)
+├── PROJECT_BLUEPRINT.md                              # Up-to-date LedgerSync system mapping
+├── README.md                                         # Setup, usage, and local run guide
 └── src/
     ├── app/
     │   ├── api/
     │   │   └── analyze/
-    │   │       └── route.ts                          # POST endpoint that extracts text and runs AI analysis
-    │   ├── globals.css                               # Application styling
-    │   ├── layout.tsx                                # Root metadata and HTML shell
-    │   └── page.tsx                                  # Main page route
+    │   │       └── route.ts                          # POST endpoint handling JSON payloads and FormData
+    │   ├── globals.css                               # Achromatic darkroom styling variables and elements
+    │   ├── layout.tsx                                # Page meta shell
+    │   └── page.tsx                                  # Renders the triage client interface
     ├── features/
     │   └── lease-review/
     │       ├── components/
-    │       │   └── LeaseReviewClient.tsx             # Upload UI and structured review rendering
-    │       └── types.ts                              # Zod schemas and TypeScript types for AI output
+    │       │   └── LeaseReviewClient.tsx             # Interactive sidebar queue, email panel, CRM reconciliation board
+    │       ├── sample-emails.json                    # Compiled 14 messy email text inputs
+    │       └── types.ts                              # EmailAnalysisSchema Zod structure
     └── server/
         ├── prompts/
-        │   └── lease-analysis.ts                     # Versioned system prompt
+        │   └── lease-analysis.ts                     # System prompts for LedgerSync email classification
         └── services/
-            ├── extract.ts                            # PDF, DOCX, and TXT text extraction
-            ├── lease-analysis.ts                     # Vercel AI SDK `generateObject` integration
-            └── rate-limit.ts                         # Minimal in-memory request limiter
+            ├── extract.ts                            # Raw text upload sanitization
+            ├── lease-analysis.ts                     # CSV parsing, profile matching, and Llama call service
+            └── rate-limit.ts                         # In-memory IP rate limiter
 ```
 
 ## Step 5 - Core AI Pipeline
 
 ```text
-1. User uploads a PDF, DOCX, or TXT subcontract or spec document via the frontend.
-2. Frontend sends it as FormData to POST /api/analyze.
-3. Backend validates file type and size, then extracts raw text using pdf-parse, mammoth, or File.text().
-4. Extracted content is passed to Groq through the Vercel AI SDK:
-   - System prompt: defines Cairn as a subcontract review assistant for specialty trades, alerts on delay notice windows, pay-if-paid terms, and retainage, and restricts output to supplied text.
-   - User prompt: includes prompt version, file name, and extracted document text.
-5. AI returns schema-constrained JSON matching ContractAnalysisSchema.
-6. Backend returns the validated object.
-7. Frontend renders the result as a review board containing executive summary, milestones, financial terms, obligations, risks, missing specifications, and negotiation plans.
-```
-
-## Step 6 - Environment
-
-```bash
-# AI Provider
-GROQ_API_KEY=your_groq_api_key_here
-GROQ_MODEL=llama-3.3-70b-versatile
-
-# App
-NEXT_PUBLIC_APP_URL=http://127.0.0.1:3000
+1. User clicks a pre-loaded sample email in the inbox list, or uploads a text file.
+2. Frontend sends text payload to POST /api/analyze as a JSON request.
+3. Backend parses `crm_export.csv` in-memory.
+4. Backend matches sender names/emails to the CRM list, generating matched user context.
+5. Content is sent to Groq:
+   - System prompt instructs Llama to act as LedgerSync, classify intents, cross-check fee values, detect discrepancies (e.g. paperwork pending, EIN errors, billing mismatches), compile checklist actions, and write an auto-reply.
+   - User prompt passes the email text and the structured CRM records.
+6. Groq returns validated JSON schema matching EmailAnalysisSchema.
+7. Frontend renders the results board: badges, original email text, CRM reconciliation panel, checkable recommended action lists, and copyable reply drafts.
 ```

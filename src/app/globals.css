@@ -901,3 +901,152 @@ h3 {
   color: var(--danger);
 }
 
+/* LedgerSync Specific Styles */
+.inbox-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+  margin-bottom: 24px;
+}
+
+.inbox-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.inbox-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.inbox-item.active {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--color-paper-white);
+}
+
+.inbox-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.inbox-item-sender {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--color-paper-white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inbox-item-subject {
+  font-size: 11px;
+  color: var(--color-smoke);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discrepancy-card {
+  background: rgba(220, 38, 38, 0.05);
+  border: 1px solid var(--danger);
+  border-radius: 0px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.discrepancy-card.warning {
+  background: rgba(245, 158, 11, 0.05);
+  border: 1px solid var(--warn);
+}
+
+.draft-container {
+  display: grid;
+  gap: 12px;
+  position: relative;
+}
+
+.draft-textarea {
+  background: var(--color-ink-black);
+  border: 1px solid var(--line);
+  color: var(--color-paper-white);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 200px;
+  padding: 16px;
+  width: 100%;
+  resize: vertical;
+}
+
+.draft-textarea:focus {
+  border-color: var(--color-paper-white);
+  outline: none;
+}
+
+.action-checkbox-list {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.action-checkbox-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--color-smoke);
+  cursor: pointer;
+}
+
+.action-checkbox-item input {
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.action-checkbox-item.checked {
+  color: var(--color-ash);
+  text-decoration: line-through;
+}
+
+.badge-intent {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 75px;
+  display: inline-block;
+}
+
+.badge-intent.invoice_dispute { background: rgba(220, 38, 38, 0.15); color: #ef4444; border: 1px solid rgba(220, 38, 38, 0.3); }
+.badge-intent.new_lead_referral { background: rgba(59, 130, 246, 0.15); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); }
+.badge-intent.document_request { background: rgba(168, 85, 247, 0.15); color: #a855f7; border: 1px solid rgba(168, 85, 247, 0.3); }
+.badge-intent.project_update { background: rgba(234, 179, 8, 0.15); color: #eab308; border: 1px solid rgba(234, 179, 8, 0.3); }
+.badge-intent.general_query { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.badge-intent.complaint { background: rgba(236, 72, 153, 0.15); color: #ec4899; border: 1px solid rgba(236, 72, 153, 0.3); }
+
+.badge-priority {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 75px;
+  display: inline-block;
+}
+.badge-priority.high { background: rgba(220, 38, 38, 0.15); color: #ef4444; border: 1px solid rgba(220, 38, 38, 0.3); }
+.badge-priority.medium { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+.badge-priority.low { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+

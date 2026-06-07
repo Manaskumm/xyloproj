@@ -40,7 +40,7 @@ export async function extractTextFromUpload(file: File) {
 function limitExtractedText(text: string) {
   const normalized = text.replace(/\u0000/g, "").replace(/[ \t]+\n/g, "\n").trim();
 
-  if (normalized.length < 500) {
+  if (normalized.length < 10) {
     throw new Error("The document did not contain enough readable text to analyze.");
   }
 

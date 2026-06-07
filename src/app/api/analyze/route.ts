@@ -18,15 +18,34 @@ export async function POST(request: Request) {
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
     checkRateLimit(ip);
 
-    const formData = await request.formData();
-    const file = formData.get("file");
+    let text = "";
+    let fileName = "email.txt";
 
-    if (!(file instanceof File)) {
-      return NextResponse.json({ error: "Attach a subcontract or specification document before analyzing." }, { status: 400 });
+    const contentType = request.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      const body = await request.json();
+      text = body.text || "";
+      fileName = body.fileName || "email.txt";
+    } else {
+      const formData = await request.formData();
+      const file = formData.get("file");
+      if (file instanceof File) {
+        text = await extractTextFromUpload(file);
+        fileName = file.name;
+      } else {
+        const textParam = formData.get("text");
+        if (typeof textParam === "string") {
+          text = textParam;
+          fileName = (formData.get("fileName") as string) || "email.txt";
+        }
+      }
     }
 
-    const text = await extractTextFromUpload(file);
-    const result = await analyzeContractText({ text, fileName: file.name });
+    if (!text || text.trim().length < 10) {
+      return NextResponse.json({ error: "Please provide valid email text to analyze (min 10 characters)." }, { status: 400 });
+    }
+
+    const result = await analyzeContractText({ text, fileName });
 
     return NextResponse.json(result);
   } catch (error) {
@@ -34,3 +53,4 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
+

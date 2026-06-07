@@ -1,58 +1,71 @@
-# Cairn
+# LedgerSync: AI Email Triage & CRM Reconciliation
 
-> Subcontract agreement and bid specification review for specialty trade contractors (flooring, HVAC, roofing).
+LedgerSync is a smart AI-powered inbox triage and CRM reconciliation tool designed specifically for **independent accounting and bookkeeping firms** (Vertical A). It parses unstructured, messy client emails (disputes, referrals, tax queries) and automatically reconciles them against a CRM records export (`crm_export.csv`), identifying intent, priority level, matching client records, finding billing discrepancies, establishing action items, and drafting professional email replies.
 
 ## What It Does
 
-Cairn turns subcontract PDFs, DOCX files, and plain text specifications into a structured review board. It extracts key milestones, retainage rules, billing cycles, party obligations, missing specs, and high-risk contracting clauses (like pay-if-paid terms or short notice windows for schedule adjustments) so subcontractors can bid and negotiate confidently.
+1. **Email Triage & Parsing:** Classifies client intents into categories like invoice disputes, complaints, documentation requests, general queries, and new client referrals. It automatically assigns priorities (High, Medium, Low) based on date urgency and sentiment.
+2. **CRM Reconciliation:** Matches senders against the CSV database via email, name fallback, or context matching. It flags discrepancies, such as:
+   - Invoice amount mismatches (e.g. client disputing a charge where the invoiced fee does not match the CRM value).
+   - Status warnings (e.g., active vs negotiating, new lead, or churned account).
+   - Missing paperwork or tax document packages noted in CRM notes.
+3. **Interactive Action Plan:** Creates a list of task checkboxes (e.g., update client invoice value, follow up on EIN forms, email bank loan officer) for the accountant to track their work.
+4. **Draft Auto-Replies:** Drafts professional, client-ready responses addressing the client's query, acknowledging issues, and prompting them for missing details.
+5. **Interactive Sample Inbox:** Preloads all 14 messy client emails from the Xylo AI Studios sample dataset directly into the side panel for quick one-click testing, alongside a drag-and-drop file upload zone.
 
 ## Tech Stack
 
-- Next.js App Router
-- React and TypeScript
-- Vercel AI SDK
-- Groq AI (llama-3.3-70b-versatile)
-- Zod
-- pdf-parse and mammoth
+- **Framework:** Next.js App Router (React, TypeScript)
+- **AI Integration:** Vercel AI SDK with Groq (Llama-3.3-70b-versatile)
+- **Validation:** Zod schemas for structured output validation
+- **Styling:** Vanilla CSS, high-contrast dark-mode theme, sharp corners (`0px`), rounded pills (`75px`)
+- **Storage:** Stateless, zero-database (processes CSV and email data in-memory)
 
-## Setup
+## Getting Started
 
 ### Prerequisites
 
-- Node.js 22+
+- Node.js 18+ or 22+
 - npm 10+
-- Groq API key
+- Groq API Key
 
 ### Installation
 
-```bash
-npm install
-cp .env.example .env.local
-```
-
-Fill in `GROQ_API_KEY` in `.env.local`.
+1. Clone or download the repository files.
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Set up the environment variables:
+   Create a `.env` file in the root directory (or copy `.env.example` to `.env.local` or `.env`):
+   ```bash
+   GROQ_API_KEY=your_groq_api_key_here
+   GROQ_MODEL=llama-3.3-70b-versatile
+   ```
 
 ### Run Locally
 
+Start the development server:
 ```bash
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open `http://localhost:3000` (or `http://127.0.0.1:3000`) in your browser.
 
-If `localhost` does not resolve in your browser, open `http://127.0.0.1:3000`.
+## How to Test
 
-## Usage
-
-1. Upload a PDF, DOCX, or TXT subcontract or spec document.
-2. Click `Analyze Contract`.
-3. Review the generated board for milestones, payment terms, subcontractor/GC obligations, contractual risks, missing specs, and recommended negotiation points.
-4. Export or use high-risk items during negotiation sessions with the General Contractor before signing.
+1. Launch the app.
+2. The left panel shows the **Triage Inbox Queue** populated with 14 sample emails from Xylo AI Studios' dataset.
+3. Click any email from the list (e.g., *Ray Delgado*, *marcy h*, or *Tina*).
+4. The system will parse the email text, match it with `crm_export.csv`, run AI triage, and render:
+   - The original email content.
+   - Categorized intent and priority badges.
+   - Executive summary of the email query.
+   - **CRM Verification card** showing client details and highlighting any discrepancy (e.g., invoice fee mismatch, missing prior returns, error in EIN submission).
+   - Recommended actions with checkable items.
+   - A copyable email reply draft.
+5. You can also upload your own `.txt` emails using the drop zone.
 
 ## Deployment
 
-Deploy to Vercel as a standard Next.js application. Add `GROQ_API_KEY`, optionally set `GROQ_MODEL`, and verify file size limit rules on Next.js serverless functions.
-
-## Notes
-
-Documents are processed in memory and are not written to a database in this scaffold. The output is operational guidance, not legal advice.
+Deploy directly to Vercel as a standard Next.js application. Configure `GROQ_API_KEY` in the environment variables settings on Vercel.
