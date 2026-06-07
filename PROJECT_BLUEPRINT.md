@@ -1,4 +1,4 @@
-# LedgerSync Project Blueprint
+# Tally Project Blueprint
 
 ## Step 1 - Chosen Vertical
 
@@ -15,7 +15,7 @@ PROBLEM:
 Bookkeepers receive messy, unstructured client emails requesting actions (e.g. disputing invoices, submitting tax info, rescheduling). To handle them, the bookkeeper must look up the client in the CRM, verify their monthly fee or billing status, check if there's any pending paperwork noted, detect inconsistencies (such as an incorrect dispute value), compile action items, and write a reply. Doing this for dozens of emails daily causes significant delays and administrative overhead.
 
 SOLUTION:
-LedgerSync automates this workflow. It displays a triage board mapping: sender information, email intent, priority level, CRM reconciliation details (including client status and values), warning cards for discrepancies (like incorrect billing amounts or missing documents), interactive recommended action checklists, and instant copyable email drafts. It runs completely in-memory with a zero-database structure.
+Tally automates this workflow. It displays a triage board mapping: sender information, email intent, priority level, CRM reconciliation details (including client status and values), warning cards for discrepancies (like incorrect billing amounts or missing documents), interactive recommended action checklists, and instant copyable email drafts. It runs completely in-memory with a zero-database structure.
 
 KEY AI CAPABILITY USED:
 Email context extraction, CRM data reconciliation, and structured JSON generation via Llama-3.3-70b-versatile with Zod schema verification.
@@ -36,7 +36,7 @@ Email context extraction, CRM data reconciliation, and structured JSON generatio
 ```text
 xyloproject/
 ├── .env                                              # Local environment settings (GROQ API key)
-├── PROJECT_BLUEPRINT.md                              # Up-to-date LedgerSync system mapping
+├── PROJECT_BLUEPRINT.md                              # Up-to-date Tally system mapping
 ├── README.md                                         # Setup, usage, and local run guide
 └── src/
     ├── app/
@@ -54,7 +54,7 @@ xyloproject/
     │       └── types.ts                              # EmailAnalysisSchema Zod structure
     └── server/
         ├── prompts/
-        │   └── lease-analysis.ts                     # System prompts for LedgerSync email classification
+        │   └── lease-analysis.ts                     # System prompts for Tally email classification
         └── services/
             ├── extract.ts                            # Raw text upload sanitization
             ├── lease-analysis.ts                     # CSV parsing, profile matching, and Llama call service
@@ -69,7 +69,7 @@ xyloproject/
 3. Backend parses `crm_export.csv` in-memory.
 4. Backend matches sender names/emails to the CRM list, generating matched user context.
 5. Content is sent to Groq:
-   - System prompt instructs Llama to act as LedgerSync, classify intents, cross-check fee values, detect discrepancies (e.g. paperwork pending, EIN errors, billing mismatches), compile checklist actions, and write an auto-reply.
+   - System prompt instructs Llama to act as Tally, classify intents, cross-check fee values, detect discrepancies (e.g. paperwork pending, EIN errors, billing mismatches), compile checklist actions, and write an auto-reply.
    - User prompt passes the email text and the structured CRM records.
 6. Groq returns validated JSON schema matching EmailAnalysisSchema.
 7. Frontend renders the results board: badges, original email text, CRM reconciliation panel, checkable recommended action lists, and copyable reply drafts.

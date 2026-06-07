@@ -315,7 +315,7 @@ export function LeaseReviewClient() {
               <Mail size={18} strokeWidth={2.3} />
             </span>
             <p className="eyebrow" translate="no">
-              LedgerSync
+              Tally
             </p>
           </div>
           <h1>AI Triage & Reconciliation</h1>

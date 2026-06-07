@@ -1,6 +1,6 @@
-# LedgerSync: AI Email Triage & CRM Reconciliation
+# Tally: AI Email Triage & CRM Reconciliation
 
-LedgerSync is a smart AI-powered inbox triage and CRM reconciliation tool designed specifically for **independent accounting and bookkeeping firms** (Vertical A). It parses unstructured, messy client emails (disputes, referrals, tax queries) and automatically reconciles them against a CRM records export (`crm_export.csv`), identifying intent, priority level, matching client records, finding billing discrepancies, establishing action items, and drafting professional email replies.
+Tally is a smart AI-powered inbox triage and CRM reconciliation tool designed specifically for **independent accounting and bookkeeping firms** (Vertical A). It parses unstructured, messy client emails (disputes, referrals, tax queries) and automatically reconciles them against a CRM records export (`crm_export.csv`), identifying intent, priority level, matching client records, finding billing discrepancies, establishing action items, and drafting professional email replies.
 
 ## What It Does
 
