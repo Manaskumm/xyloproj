@@ -79,9 +79,9 @@ function parseCSV(content: string): CRMRecord[] {
   return records;
 }
 
-export async function analyzeContractText(input: { text: string; fileName: string }) {
+export async function analyzeContractText(input: { text: string; fileName: string; customCrmRecords?: CRMRecord[] }) {
   const modelName = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
-  const crmRecords = loadCRMRecords();
+  const crmRecords = input.customCrmRecords || loadCRMRecords();
 
   const { object, usage } = await generateObject({
     model: groq(modelName),

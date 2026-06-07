@@ -73,6 +73,78 @@ export function LeaseReviewClient() {
   // Track check state for action items per file/email
   const [checkedActions, setCheckedActions] = useState<Record<string, Record<number, boolean>>>({});
 
+  // Custom CRM upload state
+  const [crmFileName, setCrmFileName] = useState<string>("crm_export.csv (Default)");
+  const [crmRecords, setCrmRecords] = useState<any[] | null>(null);
+
+  const parseClientCSV = (text: string): any[] => {
+    const lines = text.split(/\r?\n/);
+    const records: any[] = [];
+    
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      
+      const cells: string[] = [];
+      let currentCell = "";
+      let inQuotes = false;
+      
+      for (let j = 0; j < line.length; j++) {
+        const char = line[j];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === "," && !inQuotes) {
+          cells.push(currentCell.trim());
+          currentCell = "";
+        } else {
+          currentCell += char;
+        }
+      }
+      cells.push(currentCell.trim());
+      
+      if (cells.length >= 9) {
+        records.push({
+          clientId: cells[0] || "",
+          name: cells[1] || "",
+          company: cells[2] || "",
+          email: cells[3] || "",
+          phone: cells[4] || "",
+          status: cells[5] || "",
+          lastContact: cells[6] || "",
+          value: cells[7] || "",
+          notes: cells[8] || ""
+        });
+      }
+    }
+    return records;
+  };
+
+  const handleCrmUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      try {
+        const records = parseClientCSV(text);
+        if (records.length === 0) {
+          throw new Error("No client records found in CSV.");
+        }
+        setCrmRecords(records);
+        setCrmFileName(file.name);
+      } catch (err) {
+        setError(`Failed to parse CRM CSV: ${err instanceof Error ? err.message : "unknown error"}`);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const resetCrmToDefault = () => {
+    setCrmRecords(null);
+    setCrmFileName("crm_export.csv (Default)");
+  };
+
   // Helper to extract email info for display
   const activeEmailItem = useMemo(() => {
     return inbox.find((item) => item.fileName === activeTab) || null;
@@ -185,7 +257,8 @@ export function LeaseReviewClient() {
         },
         body: JSON.stringify({
           text: email.content,
-          fileName
+          fileName,
+          crmRecords: crmRecords || undefined
         })
       });
       const payload = await response.json();
@@ -249,6 +322,44 @@ export function LeaseReviewClient() {
           <p className="lead">
             Automate inbox triage and reconcile incoming client disputes, documentation updates, and tax queries directly against CRM notes.
           </p>
+
+          <div style={{ marginBottom: "20px", borderBottom: "1px solid var(--line)", paddingBottom: "20px" }}>
+            <h3 style={{ fontSize: "11px", textTransform: "uppercase", color: "var(--color-smoke)", letterSpacing: "0.1em", marginBottom: "8px" }}>
+              CRM Context Database
+            </h3>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.02)", border: "1px solid var(--line)", padding: "8px 12px" }}>
+              <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+                <span style={{ fontSize: "12px", color: "var(--color-paper-white)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={crmFileName}>
+                  {crmFileName}
+                </span>
+                {crmRecords && (
+                  <span style={{ fontSize: "10px", color: "var(--ok)", marginTop: "2px" }}>
+                    {crmRecords.length} records loaded custom
+                  </span>
+                )}
+              </div>
+              <div style={{ display: "flex", gap: "4px", flexShrink: 0 }}>
+                <label className="file-trigger" style={{ minWidth: "auto", fontSize: "9px", padding: "4px 8px", cursor: "pointer", border: "1px solid var(--line)", background: "transparent", color: "var(--color-paper-white)", borderRadius: "75px" }}>
+                  Upload CSV
+                  <input
+                    type="file"
+                    accept=".csv"
+                    className="file-input"
+                    onChange={handleCrmUpload}
+                  />
+                </label>
+                {crmRecords && (
+                  <button
+                    type="button"
+                    onClick={resetCrmToDefault}
+                    style={{ fontSize: "9px", padding: "4px 8px", background: "rgba(220, 38, 38, 0.15)", color: "#ef4444", border: "1px solid rgba(220, 38, 38, 0.3)", borderRadius: "75px" }}
+                  >
+                    Reset
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
 
           <div style={{ marginBottom: "20px" }}>
             <label 

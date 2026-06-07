@@ -20,12 +20,14 @@ export async function POST(request: Request) {
 
     let text = "";
     let fileName = "email.txt";
+    let customCrmRecords: any[] | undefined = undefined;
 
     const contentType = request.headers.get("content-type") || "";
     if (contentType.includes("application/json")) {
       const body = await request.json();
       text = body.text || "";
       fileName = body.fileName || "email.txt";
+      customCrmRecords = body.crmRecords;
     } else {
       const formData = await request.formData();
       const file = formData.get("file");
@@ -45,7 +47,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Please provide valid email text to analyze (min 10 characters)." }, { status: 400 });
     }
 
-    const result = await analyzeContractText({ text, fileName });
+    const result = await analyzeContractText({ text, fileName, customCrmRecords });
 
     return NextResponse.json(result);
   } catch (error) {
