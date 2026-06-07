@@ -816,6 +816,7 @@ h3 {
   transition: border-color 0.2s ease;
   max-width: 100%;
   min-width: 0;
+  overflow: hidden;
 }
 
 .queue-item:hover {
@@ -920,6 +921,8 @@ h3 {
   transition: all 0.2s ease;
   text-align: left;
   width: 100%;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .inbox-item:hover {
@@ -936,6 +939,9 @@ h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 8px;
 }
 
 .inbox-item-sender {
@@ -945,6 +951,8 @@ h3 {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  min-width: 0;
+  flex: 1;
 }
 
 .inbox-item-subject {
@@ -953,6 +961,8 @@ h3 {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  width: 100%;
+  min-width: 0;
 }
 
 .discrepancy-card {
