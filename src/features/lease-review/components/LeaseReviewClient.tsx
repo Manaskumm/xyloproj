@@ -74,47 +74,58 @@ export function LeaseReviewClient() {
   const [checkedActions, setCheckedActions] = useState<Record<string, Record<number, boolean>>>({});
 
   // Custom CRM upload state
-  const [crmFileName, setCrmFileName] = useState<string>("crm_export.csv (Default)");
+  const [crmFileName, setCrmFileName] = useState<string | null>(null);
   const [crmRecords, setCrmRecords] = useState<any[] | null>(null);
+
+  const parseCSVLine = (line: string): string[] => {
+    const cells: string[] = [];
+    let currentCell = "";
+    let inQuotes = false;
+    
+    for (let j = 0; j < line.length; j++) {
+      const char = line[j];
+      if (char === '"') {
+        if (inQuotes && line[j + 1] === '"') {
+          currentCell += '"';
+          j++; // skip escaped quote
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char === "," && !inQuotes) {
+        cells.push(currentCell.trim());
+        currentCell = "";
+      } else {
+        currentCell += char;
+      }
+    }
+    cells.push(currentCell.trim());
+    return cells;
+  };
 
   const parseClientCSV = (text: string): any[] => {
     const lines = text.split(/\r?\n/);
+    if (lines.length < 2) return [];
+
+    const headers = parseCSVLine(lines[0]);
+    if (headers.length === 0) return [];
+
     const records: any[] = [];
     
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
       if (!line) continue;
       
-      const cells: string[] = [];
-      let currentCell = "";
-      let inQuotes = false;
+      const cells = parseCSVLine(line);
+      const record: Record<string, string> = {};
       
-      for (let j = 0; j < line.length; j++) {
-        const char = line[j];
-        if (char === '"') {
-          inQuotes = !inQuotes;
-        } else if (char === "," && !inQuotes) {
-          cells.push(currentCell.trim());
-          currentCell = "";
-        } else {
-          currentCell += char;
+      headers.forEach((header, index) => {
+        const key = header.trim();
+        if (key) {
+          record[key] = cells[index] || "";
         }
-      }
-      cells.push(currentCell.trim());
+      });
       
-      if (cells.length >= 9) {
-        records.push({
-          clientId: cells[0] || "",
-          name: cells[1] || "",
-          company: cells[2] || "",
-          email: cells[3] || "",
-          phone: cells[4] || "",
-          status: cells[5] || "",
-          lastContact: cells[6] || "",
-          value: cells[7] || "",
-          notes: cells[8] || ""
-        });
-      }
+      records.push(record);
     }
     return records;
   };
@@ -142,7 +153,7 @@ export function LeaseReviewClient() {
 
   const resetCrmToDefault = () => {
     setCrmRecords(null);
-    setCrmFileName("crm_export.csv (Default)");
+    setCrmFileName(null);
   };
 
   // Helper to extract email info for display
@@ -244,6 +255,11 @@ export function LeaseReviewClient() {
       return;
     }
 
+    if (!crmRecords || crmRecords.length === 0) {
+      setError("Please upload a CRM CSV file first to perform triage reconciliation.");
+      return;
+    }
+
     setIsLoading(true);
     setError("");
     setActiveTab(fileName);
@@ -258,7 +274,7 @@ export function LeaseReviewClient() {
         body: JSON.stringify({
           text: email.content,
           fileName,
-          crmRecords: crmRecords || undefined
+          crmRecords
         })
       });
       const payload = await response.json();
@@ -327,14 +343,18 @@ export function LeaseReviewClient() {
             <h3 style={{ fontSize: "11px", textTransform: "uppercase", color: "var(--color-smoke)", letterSpacing: "0.1em", marginBottom: "8px" }}>
               CRM Context Database
             </h3>
-            <div style={{ display: "flex", gap: "8px", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.02)", border: "1px solid var(--line)", padding: "8px 12px" }}>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center", justifyContent: "space-between", background: "rgba(255,255,255,0.02)", border: crmRecords ? "1px solid var(--line)" : "1px dashed var(--warn)", padding: "8px 12px" }}>
               <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
-                <span style={{ fontSize: "12px", color: "var(--color-paper-white)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={crmFileName}>
-                  {crmFileName}
+                <span style={{ fontSize: "12px", color: crmRecords ? "var(--color-paper-white)" : "var(--warn)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={crmFileName || undefined}>
+                  {crmFileName || "No CRM database loaded"}
                 </span>
-                {crmRecords && (
+                {crmRecords ? (
                   <span style={{ fontSize: "10px", color: "var(--ok)", marginTop: "2px" }}>
                     {crmRecords.length} records loaded custom
+                  </span>
+                ) : (
+                  <span style={{ fontSize: "10px", color: "var(--warn)", marginTop: "2px" }}>
+                    Reconciliation disabled
                   </span>
                 )}
               </div>
@@ -354,7 +374,7 @@ export function LeaseReviewClient() {
                     onClick={resetCrmToDefault}
                     style={{ fontSize: "9px", padding: "4px 8px", background: "rgba(220, 38, 38, 0.15)", color: "#ef4444", border: "1px solid rgba(220, 38, 38, 0.3)", borderRadius: "75px" }}
                   >
-                    Reset
+                    Clear
                   </button>
                 )}
               </div>
@@ -461,14 +481,33 @@ export function LeaseReviewClient() {
             )}
           </div>
 
-          {!activeResult ? (
+          {!crmRecords ? (
+            <div className="empty-state">
+              <div className="empty-icon" aria-hidden="true" style={{ color: "var(--color-ink-black)" }}>
+                <UploadCloud size={24} />
+              </div>
+              <h2>Upload a CRM CSV to Begin</h2>
+              <p>
+                Tally requires a CRM database to reconcile incoming client emails, match contacts, and highlight billing or status discrepancies.
+              </p>
+              <label className="primary-button" style={{ display: "inline-flex", gap: "8px", alignItems: "center", cursor: "pointer", borderRadius: "75px", padding: "10px 24px", marginTop: "16px", width: "auto" }}>
+                <span>Upload CRM CSV</span>
+                <input
+                  type="file"
+                  accept=".csv"
+                  className="file-input"
+                  onChange={handleCrmUpload}
+                />
+              </label>
+            </div>
+          ) : !activeResult ? (
             <div className="empty-state">
               <div className="empty-icon" aria-hidden="true">
-                <ClipboardList size={34} />
+                <ClipboardList size={24} />
               </div>
               <h2>Select an email to run triage</h2>
               <p>
-                LedgerSync analyzes client email intents, highlights discrepancies with CRM values, creates a tasks list, and drafts auto-replies.
+                Tally analyzes client email intents, highlights discrepancies with CRM values, creates a tasks list, and drafts auto-replies.
               </p>
             </div>
           ) : (
@@ -559,44 +598,48 @@ export function LeaseReviewClient() {
                   </div>
                 )}
 
-                <div className="grid" style={{ gap: "16px", marginTop: "16px" }}>
-                  <div>
-                    <h3 style={{ fontSize: "11px", textTransform: "uppercase", color: "var(--color-ash)", letterSpacing: "0.05em" }}>CRM Profile</h3>
-                    <ul className="kv-list" style={{ marginTop: "8px" }}>
-                      <li>
-                        <span className="label">Matched Record Name</span>
-                        <span className="value">{activeResult.analysis.crmMatch.matchedName || "Unmatched / New Lead"}</span>
-                      </li>
-                      <li>
-                        <span className="label">CRM Client ID</span>
-                        <span className="value">{activeResult.analysis.crmMatch.clientId || "N/A"}</span>
-                      </li>
-                      <li>
-                        <span className="label">Contract Status</span>
-                        <span className="value" style={{ textTransform: "capitalize" }}>
-                          {activeResult.analysis.crmMatch.status || "N/A"}
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div>
-                    <h3 style={{ fontSize: "11px", textTransform: "uppercase", color: "var(--color-ash)", letterSpacing: "0.05em" }}>Financial Profile</h3>
-                    <ul className="kv-list" style={{ marginTop: "8px" }}>
-                      <li>
-                        <span className="label">Expected Value / Monthly Fee</span>
-                        <span className="value">
-                          {activeResult.analysis.crmMatch.crmValue ? `$${activeResult.analysis.crmMatch.crmValue}` : "N/A"}
-                        </span>
-                      </li>
-                      <li>
-                        <span className="label">CRM Notes / Flags</span>
-                        <span className="value" style={{ fontStyle: "italic" }}>
-                          {activeResult.analysis.crmMatch.matchedName ? "Refer to discrepancy summary details" : "Record not found in CRM. Intake pipeline suggested."}
-                        </span>
-                      </li>
-                    </ul>
-                  </div>
+                <div style={{ marginTop: "16px" }}>
+                  {activeResult.analysis.crmMatch.matchedRecord ? (
+                    <div>
+                      <h3 style={{ fontSize: "11px", textTransform: "uppercase", color: "var(--color-ash)", letterSpacing: "0.05em", marginBottom: "12px" }}>
+                        Matched CRM Record Fields
+                      </h3>
+                      <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "12px" }}>
+                        {Object.entries(activeResult.analysis.crmMatch.matchedRecord).map(([key, val]) => (
+                          <div 
+                            key={key} 
+                            style={{ 
+                              padding: "10px 12px", 
+                              border: "1px solid var(--line)", 
+                              background: "rgba(255, 255, 255, 0.01)" 
+                            }}
+                          >
+                            <span 
+                              style={{ 
+                                display: "block", 
+                                fontSize: "10px", 
+                                textTransform: "uppercase", 
+                                color: "var(--color-ash)", 
+                                letterSpacing: "0.05em",
+                                marginBottom: "4px"
+                              }}
+                            >
+                              {key}
+                            </span>
+                            <span style={{ fontSize: "13px", color: "var(--color-paper-white)", wordBreak: "break-all" }}>
+                              {val || "—"}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <p style={{ color: "var(--color-ash)", fontStyle: "italic", fontSize: "13px", margin: 0 }}>
+                        No matching record found in the uploaded CRM database. Intake pipeline suggested.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

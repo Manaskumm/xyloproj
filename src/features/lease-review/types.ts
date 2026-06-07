@@ -8,10 +8,7 @@ export const EmailAnalysisSchema = z.object({
   priority: z.enum(["low", "medium", "high"]),
   executiveSummary: z.string(),
   crmMatch: z.object({
-    clientId: z.string().nullable(),
-    matchedName: z.string().nullable(),
-    status: z.string().nullable(),
-    crmValue: z.string().nullable(),
+    matchedRecord: z.record(z.string()).nullable(),
     discrepancyFound: z.boolean(),
     discrepancyDetails: z.string().nullable()
   }),

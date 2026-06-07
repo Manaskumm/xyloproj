@@ -43,6 +43,13 @@ export async function POST(request: Request) {
       }
     }
 
+    if (!customCrmRecords || !Array.isArray(customCrmRecords) || customCrmRecords.length === 0) {
+      return NextResponse.json(
+        { error: "CRM records are required for reconciliation. Please upload a CRM CSV file first." },
+        { status: 400 }
+      );
+    }
+
     if (!text || text.trim().length < 10) {
       return NextResponse.json({ error: "Please provide valid email text to analyze (min 10 characters)." }, { status: 400 });
     }
